@@ -5,7 +5,6 @@ from tkinter import filedialog
 
 root = Tk()
 class GUI(Frame):
-
     def __init__(self, master=None):
         Frame.__init__(self, master)
 
@@ -58,10 +57,19 @@ class GUI(Frame):
         filemenu.add_command(label="Open", command=self.openClick)
         menubar.add_cascade(label="File", menu=filemenu)
 
+        windowmenu = Menu(menubar, tearoff=0)
+        windowmenu.add_command(label="GPA Calculator", command=self.create_gpa)
+        menubar.add_cascade(label="Window", menu=windowmenu)
+
+
         root.config(menu=menubar)
 
 
 
+
+    def create_gpa(self):
+        t = Toplevel(self)
+        t.wm_title("GPA Calculator")
 
 
     def calcClick(self):
