@@ -16,6 +16,8 @@ INSTITUTIONAL_GPA = 2.92
 CUMULATIVE_HOURS = 154
 INSTITUTIONAL_HOURS = 63
 
+turn = "red"
+
 LABEL_FONT = "'Arial 20 bold"
 GPA_ENTRY_FONT= "'Arial', 30"
 BUDGET_ENTRY_FONT = "Arial 16"
@@ -199,6 +201,7 @@ class GUI(Frame):
 
             self.semGPAText.delete(0, END)
             self.semHoursText.delete(0, END)
+
         except ValueError:
             t = Tk()
             t.after(2500, lambda: t.destroy())
@@ -211,12 +214,8 @@ class GUI(Frame):
             errorLabel.pack()
 
     def create_checkers(self):
-        t = Toplevel()
-        t.wm_title("Checkers")
-
-
-        frame = Frame(t, bg="white")
-        frame.grid(row=0, column=0)
+        self.t = Toplevel()
+        self.t.wm_title("Checkers")
 
 
         self.blackPiecePath = "C:\\Users\\Brian\\PycharmProjects\\Python\\bin\\blackCheckers.png"
@@ -231,58 +230,165 @@ class GUI(Frame):
 
         self.redCheckersPiece = ImageTk.PhotoImage(self.redCheckersImage)
 
+        self.checkerboardPath = "C:\\Users\\Brian\\PycharmProjects\\Python\\bin\\Checkerboard.png"
+        self.checkerboardImage = Image.open(self.checkerboardPath)
+        self.checkerboardImage = self.checkerboardImage.resize((600, 600))
+        self.checkerboard = ImageTk.PhotoImage(self.checkerboardImage)
 
-        white = [None] * 32
+        Checkerboard = Label(self.t, width=595, height=595, image=self.checkerboard)
+        Checkerboard.grid(row=0, column=0, rowspan=2)
+        Checkerboard.bind("<Button-1>", self.addPiece)
 
+        redTurn = Button(self.t, text="Red\nTurn", bg="red", fg="white", font="Arial 20 bold", command=self.red_turn)
+        redTurn.grid(row=0, column=2, sticky=N+S+E+W)
+
+        blackTurn = Button(self.t, text="Black\nTurn", bg="black", fg="white", font="Arial 20 bold",  command=self.black_turn)
+        blackTurn.grid(row=1, column=2, sticky=N+S)
+
+        w = self.checkerboard.width() + 100
+        h = self.checkerboard.height()
+
+
+        self.redLabel = [None] * 32
+        self.blackLabel = [None] * 32
+
+        j = 0
+        k = 0
+        l = 0
+        m = 0
+        n = 0
         for i in range(32):
-            position = "Position " + str(i)
-            white[i] = Canvas(frame, bg="black", width=70, height=70)
+            self.redLabel[i] = Label(self.t, width=55, height=55, image=self.redCheckersPiece, bg="black")
+            self.blackLabel[i] = Label(self.t, width=55, height=55, image=self.blackCheckersPiece, bg="black")
+            self.redLabel[i].bind('<Button-1>', self.onCanvasClick)
+            self.blackLabel[i].bind('<Button-1>', self.onCanvasClick)
 
-        for i in range(4):
             if i < 4:
-                white[i].grid(row=0, column=(i * 2), sticky=E+W)
-        j = 1
-        for i in range(4, 8):
-            white[i].grid(row=1, column=j)
-            j += 2
-        j = 0
-        for i in range(8, 12):
-            white[i].grid(row=2, column=j)
-            j += 2
-        j = 1
-        for i in range(12, 16):
-            white[i].grid(row=3, column=j)
-            j += 2
-        j = 0
-        for i in range(16, 20):
-            white[i].grid(row=4, column=j)
-            j += 2
-        j = 1
-        for i in range(20, 24):
-            white[i].grid(row=5, column=j)
-            j += 2
-        j = 0
-        for i in range(24, 28):
-            white[i].grid(row=6, column=j)
-            j += 2
-        j = 1
-        for i in range(28, 32):
-            white[i].grid(row=7, column=j)
-            j += 2
+                self.redLabel[i].place(x=i * 150, y=0, width=70, height=70)
+
+            if i > 3 & i < 8:
+                self.redLabel[i].place(x=(j * 150) + 75, y=75, width=70, height=70)
+                j += 1
+            if (i > 7) & (i < 12):
+                self.redLabel[i].place(x=k * 150, y=150, width=70, height=70)
+                k += 1
+
+            if 19 < i < 24:
+                self.blackLabel[i].place(x=(l * 150) + 75, y=375, width=70, height=70)
+                l += 1
+            if 23 < i < 28:
+                self.blackLabel[i].place(x=(m * 150), y=450, width=70, height=70)
+                m += 1
+            if 27 < i < 32:
+                self.blackLabel[i].place(x=(n * 150) + 75, y=525, width=70, height=70)
+                n += 1
+
+        self.t.geometry('%dx%d+0+0' % (w,h))
 
 
-
-        for i in range(12):
-            white[i].create_image(37, 37, image=self.blackCheckersPiece)
-
-        for i in range(20, 32):
-            white[i].create_image(37, 37, image=self.redCheckersPiece)
-
-        white[0].bind('<Button-1>', self.onCanvasClick)
 
     def onCanvasClick(self, event):
-        print("Got canvas click", event.itemcget)
-        print(self)
+        event.widget.place_forget()
+
+
+    def addPiece(self, event):
+        global turn
+        print(event.x, event.y)
+        if turn is "red":
+            if (0 < event.x < 75) & (0 < event.y < 75):
+                self.redLabel[0].place(x=0, y=0, width=70, height=70)
+            if (150 < event.x < 225) & (0 < event.y < 75):
+                self.redLabel[1].place(x=150, y=0, width=70, height=70)
+            if (300 < event.x < 375) & (0 < event.y < 75):
+                self.redLabel[2].place(x=300, y=0, width=70, height=70)
+            if (450 < event.x < 525) & (0 < event.y < 75):
+                self.redLabel[3].place(x=450, y=0, width=70, height=70)
+
+            if (75 < event.x < 150) & (75 < event.y < 150):
+                self.redLabel[4].place(x=75, y=75, width=70, height=70)
+            if (225 < event.x < 300) & (75 < event.y < 150):
+                self.redLabel[5].place(x=225, y=75, width=70, height=70)
+            if (375 < event.x < 450) & (75 < event.y < 150):
+                self.redLabel[6].place(x=375, y=75, width=70, height=70)
+            if (525 < event.x < 600) & (75 < event.y < 150):
+                self.redLabel[7].place(x=525, y=75, width=70, height=70)
+
+            if (0 < event.x < 75) & (150 < event.y < 225):
+                self.redLabel[8].place(x=0, y=150, width=70, height=70)
+            if (150 < event.x < 225) & (150 < event.y < 225):
+                self.redLabel[9].place(x=150, y=150, width=70, height=70)
+            if (300 < event.x < 375) & (150 < event.y < 225):
+                self.redLabel[10].place(x=300, y=150, width=70, height=70)
+            if (450 < event.x < 525) & (150 < event.y < 225):
+                self.redLabel[11].place(x=450, y=150, width=70, height=70)
+
+            if (75 < event.x < 150) & (225 < event.y < 300):
+                self.redLabel[12].place(x=75, y=225, width=70, height=70)
+            if (225 < event.x < 300) & (225 < event.y < 300):
+                self.redLabel[13].place(x=225, y=225, width=70, height=70)
+            if (375 < event.x < 450) & (225 < event.y < 300):
+                self.redLabel[14].place(x=375, y=225, width=70, height=70)
+            if (525 < event.x < 600) & (225 < event.y < 300):
+                self.redLabel[15].place(x=525, y=225, width=70, height=70)
+
+            if (0 < event.x < 75) & (300 < event.y < 375):
+                self.redLabel[16].place(x=0, y=300, width=70, height=70)
+            if (150 < event.x < 225) & (300 < event.y < 375):
+                self.redLabel[17].place(x=150, y=300, width=70, height=70)
+            if (300 < event.x < 375) & (300 < event.y < 375):
+                self.redLabel[18].place(x=300, y=300, width=70, height=70)
+            if (450 < event.x < 525) & (300 < event.y < 375):
+                self.redLabel[19].place(x=450, y=300, width=70, height=70)
+
+            if (75 < event.x < 150) & (375 < event.y < 450):
+                self.redLabel[20].place(x=75, y=375, width=70, height=70)
+            if (225 < event.x < 300) & (375 < event.y < 450):
+                self.redLabel[21].place(x=225, y=375, width=70, height=70)
+            if (375 < event.x < 450) & (375 < event.y < 450):
+                self.redLabel[22].place(x=375, y=375, width=70, height=70)
+            if (525 < event.x < 600) & (375 < event.y < 450):
+                self.redLabel[23].place(x=525, y=375, width=70, height=70)
+
+
+        if turn is "black":
+            if (0 < event.x < 75) & (0 < event.y < 75):
+                self.blackLabel[0].place(x=0, y=0, width=70, height=70)
+            if (150 < event.x < 225) & (0 < event.y < 75):
+                self.blackLabel[1].place(x=150, y=0, width=70, height=70)
+            if (300 < event.x < 375) & (0 < event.y < 75):
+                self.blackLabel[2].place(x=300, y=0, width=70, height=70)
+            if (450 < event.x < 525) & (0 < event.y < 75):
+                self.blackLabel[3].place(x=450, y=0, width=70, height=70)
+
+            if (75 < event.x < 150) & (75 < event.y < 150):
+                self.blackLabel[4].place(x=75, y=75, width=70, height=70)
+            if (225 < event.x < 300) & (75 < event.y < 150):
+                self.blackLabel[5].place(x=225, y=75, width=70, height=70)
+            if (375 < event.x < 450) & (75 < event.y < 150):
+                self.blackLabel[6].place(x=375, y=75, width=70, height=70)
+            if (525 < event.x < 600) & (75 < event.y < 150):
+                self.blackLabel[7].place(x=525, y=75, width=70, height=70)
+
+            if (0 < event.x < 75) & (150 < event.y < 225):
+                self.blackLabel[8].place(x=0, y=150, width=70, height=70)
+            if (150 < event.x < 225) & (150 < event.y < 225):
+                self.blackLabel[9].place(x=150, y=150, width=70, height=70)
+            if (300 < event.x < 375) & (150 < event.y < 225):
+                self.blackLabel[10].place(x=300, y=150, width=70, height=70)
+            if (450 < event.x < 525) & (150 < event.y < 225):
+                self.blackLabel[11].place(x=450, y=150, width=70, height=70)
+
+    def red_turn(self):
+        global turn
+        turn = "red"
+        print(turn)
+
+    def black_turn(self):
+        global turn
+        turn = "black"
+        print(turn)
+
+
 
 
 
